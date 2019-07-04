@@ -1,4 +1,5 @@
 /* 作成中 */
+// 不具合：Scan Responseで送信しようとしても6バイトしか送信できない。
 
 /*****************************************************************************
     Sensors-Add-on-Demo.ino
@@ -73,12 +74,12 @@ void setup() {
     else Serial.println("success");
 }
 
+byte seq=0;
 void loop() {
     byte rc;
+    
     float acc[3], mag[3], press = 0, temp = 0;
-    unsigned char data, d;
-    const char str[32] = "abcdefg";
-
+    
     if(KX122_found){
         rc = kx122.get_val(acc);
         if (rc == 0) {
@@ -133,7 +134,50 @@ void loop() {
         Serial.println(" [degrees Celsius]");
         Serial.println();
     }
+    
+    unsigned char data[32];
+    int len =0;
+    unsigned int val_ui;
+    
+    val_ui = (unsigned int)((temp + 45.) * 374.5);
+    data[len] = (unsigned char)(val_ui & 0x00FF);	len++;
+    data[len] = (unsigned char)(val_ui >> 8);		len++;
+    data[len] = 0;								    len++;
+    data[len] = 0;								    len++;
+    data[len] = seq;							    len++;
+    
+    val_ui = (unsigned int)(acc[0] * 4096);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    val_ui = (unsigned int)(acc[1] * 4096);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    val_ui = (unsigned int)(acc[2] * 4096);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    
+    val_ui = (unsigned int)(mag[0] * 10);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    val_ui = (unsigned int)(mag[1] * 10);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    val_ui = (unsigned int)(mag[2] * 10);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)(val_ui >> 8);       len++;
 
+    val_ui = (unsigned int)(press * 2048);
+    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    data[len] = (unsigned char)((val_ui>>8)&0xFF);  len++;
+    data[len] = (unsigned char)((val_ui>>16)&0xFF);  len++;
+    
+//  len=4;
+    mk71251.scanResponse(data,len);
+    delay(5000);
+    seq++;
+	/*
+    unsigned char data, d;
+    const char str[32] = "abcdefg";
     rc = mk71251.read(&data);
 
     if (rc == 0){
@@ -146,5 +190,5 @@ void loop() {
             }
         }
     }
-    delay(500);
+	*/
 }

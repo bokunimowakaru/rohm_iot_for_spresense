@@ -32,8 +32,13 @@ class MK71251
 		byte init(void);
 		byte write(unsigned char *data);
 		byte read(unsigned char *data);
-	private:
+		int start();
 		int waitConnect(void);
+		int disconnect(void);
+		scanResponse(unsigned char *data, int n);
+	private:
+		void writeByte(unsigned char in);
+		int waitKey(char *key);
 };
 
 #endif // _MK71251_H_
