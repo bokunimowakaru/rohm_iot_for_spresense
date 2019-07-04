@@ -34,7 +34,7 @@ class MK71251
 		byte init(void);
 		byte write(unsigned char *data);
 		byte read(unsigned char *data);
-		int start();
+		int start(void);
 		int waitConnect(void);
 		int disconnect(void);
 		int scanResponse(unsigned char *data, int n);
