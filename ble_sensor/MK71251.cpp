@@ -163,7 +163,7 @@ int MK71251::disconnect(){
 
 void MK71251::writeByte(unsigned char in){
 	for(int i=1; i >= 0; i--){
-		byte v = (in >> (4 * i)) & 0x0F;
+		byte v = ((byte)in >> (4 * i)) & 0x0F;
 		if(v < 10) v += (byte)'0';
 		else v += (byte)'a' - 10;
 		Serial2.write(v);
