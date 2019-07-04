@@ -37,7 +37,7 @@ class MK71251
 		int start();
 		int waitConnect(void);
 		int disconnect(void);
-		scanResponse(unsigned char *data, int n);
+		int scanResponse(unsigned char *data, int n);
 	private:
 		void writeByte(unsigned char in);
 		int waitKey(char *key);
