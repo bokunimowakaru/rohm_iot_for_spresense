@@ -32,15 +32,18 @@ class MK71251
 	public:
 		MK71251(void);
 		byte init(void);
-		byte write(unsigned char *data);
+		byte write(const char *data);
 		byte read(unsigned char *data);
 		int start(void);
 		int waitConnect(void);
 		int disconnect(void);
-		int scanResponse(unsigned char *data, int n);
+		int sendScanResponse(unsigned char *data, int n);
+		int sendAt(const char *data);
 	private:
+		int at_status;
 		void writeByte(unsigned char in);
-		int waitKey(char *key);
+		int waitKey(const char *key);
+		int waitCTS(void);
 };
 
 #endif // _MK71251_H_

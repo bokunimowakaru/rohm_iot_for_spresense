@@ -173,8 +173,12 @@ void loop() {
     data[len] = (unsigned char)((val_ui>>16)&0xFF);  len++;
     
 //  len=4;
-    mk71251.scanResponse(data,len);
-    delay(5000);
+    mk71251.sendScanResponse(data,len);
+    for(int i=0; i<5; i++){
+        delay(1000);
+        Serial.print('z');
+    }
+    Serial.println("\n!---------- Wake up ----------!");
     seq++;
 	/*
     unsigned char data, d;
