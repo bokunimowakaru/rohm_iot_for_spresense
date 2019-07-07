@@ -39,7 +39,7 @@ MK71251::MK71251(void){
 
 int MK71251::status(const char *s){
 	int cts = !digitalRead(PIN_D27);
-	printf("MK71251: %d %d, %s", at_status, cts, s);
+	printf("MK71251(%d,%d): %s", at_status, cts, s);
 	if( strlen(s) == 0 ) printf("\n");
 	return at_status;
 }
@@ -103,7 +103,8 @@ int MK71251::waitCTS(){
 		if(!(i%10)) printf(".");
 	}
 	if(i == max){
-		printf("\nMK71251-02: WARN CTS = HIGH\n");
+		printf("\n");
+		status("WARN CTS = HIGH\n");
 		if( at_status == 2 ) at_status = 3;
 	}
 	else{
@@ -124,13 +125,16 @@ int MK71251::write(unsigned char *data, int n){
 
 int MK71251::read(char *s, int n){
 	char c;
-	memset(s,0,n);
-	for(int i=0; i < n-1;i++){
-		c = Serial2.read();
-		if(c == 255 || c < 16) break;
-		s[i]=c;
+	if(at_status==3){
+		memset(s,0,n);
+		for(int i=0; i < n-1;i++){
+			c = Serial2.read();
+			if(c == 255 || c < 16) break;
+			s[i]=c;
+		}
+		return strlen(s);
 	}
-	return strlen(s);
+	return 0;
 }
 
 int MK71251::waitKey(const char *key, int max){
@@ -266,8 +270,9 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 	status("sendScanResponse\n");
 	int ret;
 	
-	if(waitKey("CONNECT",11)) at_status = 3;
+	if(waitKey("CONNECT",14)) at_status = 3;
 	// 7バイト文字 ＋ \r\n 2バイト×2
+	// NO CARRIERが 10バイトなので +3バイトして 14に
 	if(at_status == 3){
 		if( !waitCTS() ) return 0;
 		status("send app data=");

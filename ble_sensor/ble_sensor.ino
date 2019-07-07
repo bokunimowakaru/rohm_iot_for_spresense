@@ -1,9 +1,57 @@
-// 下記のライセンスに基づいて改変しました。元の権利はROHMに帰属、改変部の権利は国野亘に帰属。
-/* 作成中 */
-// 不具合：Scan Responseで送信しようとしても6バイトしか送信できない。
+/*******************************************************************************
+BLE Sensor
+for Rohm SPRESENSE-BLE-EVK-701 + SPRESENSE-SENSOR-EVK-701 + Sony Spresense
 
+https://github.com/bokunimowakaru/rohm_iot_for_spresense
+
+                                                Copyright (c) 2019 Wataru KUNINO
+********************************************************************************
+【内容】
+  ローム製Bluetooth LE Add-onボードSPRESENSE-BLE-EVK-701と、センサAdd-onボード
+  SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューションズ製 Spresenseへ
+  接続し、各センサ値をBLE送信するためのプログラムです。
+  
+【不具合】
+  Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
+  
+【参考文献】
+  
+  本プログラムやレポジトリに下記からダウンロードしたソースリストが含まれます。
+  https://github.com/RohmSemiconductor/Arduino
+  
+  元の権利は Rohm と KokiOkada に帰属し、改変部の権利は国野亘に帰属します。
+  
+  下記は Rohm ならびに KokiOkada による元の権利表示です。
+*/
+/*******************************************************************************
+rohm_iot_for_spresense/rohm/LICENSE
+********************************************************************************
+  MIT License
+
+Copyright (c) 2018 KokiOkada
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 /*****************************************************************************
-    Sensors-Add-on-Demo.ino
+rohm_iot_for_spresense/rohm/Sensors-Add-on-Demo.ino
+******************************************************************************
+  Sensors-Add-on-Demo.ino
  Copyright (c) 2018 ROHM Co.,Ltd.
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +68,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-******************************************************************************/
+*******************************************************************************/
+
 #include "Arduino.h"
 #include <Wire.h>
 #include "KX122.h"
@@ -76,9 +125,29 @@ void setup() {
 }
 
 byte seq=0;
+
+int d_append(byte *array,int i, byte d){
+    array[i]=d;
+    return i+1;
+}
+
+int d_append_uint16(byte *array,int i, uint16_t d){
+    array[i] = (byte)(d & 0xFF); 
+    array[i+1] = (byte)(d >> 8);
+    return i+2;
+}
+
+int d_append_uint24(byte *array,int i, uint32_t d){
+    array[i] = (byte)(d & 0xFF); 
+    array[i+1] = (byte)((d >>8)&0xFF);
+    array[i+2] = (byte)((d >>16)&0xFF);
+    return i+3;
+}
+
 void loop() {
-    byte rc;
     
+    /* センサ値の取得 */
+    byte rc;
     float acc[3], mag[3], press = 0, temp = 0;
     
     if(KX122_found){
@@ -94,9 +163,7 @@ void loop() {
             Serial.print(acc[2]);
             Serial.println(" [g]");
         }
-    }
-
-    if(KX126_found){
+    }else if(KX126_found){
         rc = kx126.get_val(acc);
         if (rc == 0) {
             Serial.write("KX126 (X) = ");
@@ -112,7 +179,6 @@ void loop() {
     }
 
     rc = bm1422agmv.get_val(mag);
-
     if (rc == 0) {
         Serial.print("BM1422AGMV XDATA=");
         Serial.print(mag[0], 3);
@@ -136,64 +202,50 @@ void loop() {
         Serial.println();
     }
     
+    /* データ送信 */
     unsigned char data[32];
+    
     int len =0;
     unsigned long val_ui;
     
     val_ui = (unsigned long)((temp + 45.) * 374.5);
-    data[len] = (unsigned char)(val_ui & 0xFF);	len++;
-    data[len] = (unsigned char)(val_ui >> 8);		len++;
-    data[len] = 0;								    len++;
-    data[len] = 0;								    len++;
-    data[len] = seq;							    len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+    
+    val_ui = (unsigned long)(press * 2048);
+    len = d_append_uint24(data,len,(uint32_t)(val_ui));    
+    
+    val_ui = d_append(data,len,seq);
     
     val_ui = (unsigned long)(acc[0] * 4096);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
     val_ui = (unsigned long)(acc[1] * 4096);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
     val_ui = (unsigned long)(acc[2] * 4096);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
     
     val_ui = (unsigned long)(mag[0] * 10);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
     val_ui = (unsigned long)(mag[1] * 10);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
     val_ui = (unsigned long)(mag[2] * 10);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)(val_ui >> 8);       len++;
+    len = d_append_uint16(data,len,(uint16_t)(val_ui));
 
-    val_ui = (unsigned long)(press * 2048);
-    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
-    data[len] = (unsigned char)((val_ui>>8)&0xFF);  len++;
-    data[len] = (unsigned char)((val_ui>>16)&0xFF); len++;
-    
-//  len=4;
     mk71251.sendScanResponse(data,len);
+
+    /* 受信 */
+    char s[32];
+    if( mk71251.read(s,32) > 0 ){
+        Serial.print("Read ");
+        Serial.println(s);
+    }
+    
+    /* 次回の送信待ち（待機） */
     for(int i=0; i<10; i++){
         delay(1000);
         Serial.print('z');
     }
+    
+    /* 待機完了 */
     Serial.println("\n!---------- Wake up ----------!");
     seq++;
-	/*
-    unsigned char data, d;
-    const char str[32] = "abcdefg";
-    rc = mk71251.read(&data);
-
-    if (rc == 0){
-        printf("Read %c\n",data);
-    
-        if (data == 'Z') { //Test write function when 'Z' is detected
-            for (unsigned int i = 0; i <= strlen(str); i++) {
-              d = str[i];
-              mk71251.write(&d);
-            }
-        }
-    }
-	*/
 }
