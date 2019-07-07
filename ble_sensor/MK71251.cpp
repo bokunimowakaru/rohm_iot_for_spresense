@@ -92,7 +92,7 @@ int MK71251::init(void){
 
 int MK71251::waitCTS(){
 	int cts=1;
-	int max = 20;
+	int max = 50;
 	int i;
 	if( !digitalRead(PIN_D27) ) return 1;
 	status("waiting for CTS:LOW.");
