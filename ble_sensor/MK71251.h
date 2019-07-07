@@ -31,9 +31,10 @@ class MK71251
 {
 	public:
 		MK71251(void);
-		byte init(void);
-		byte write(const char *data);
-		byte read(unsigned char *data);
+		int init(void);
+		int status(const char *s);
+		int write(unsigned char *data,int n);
+		int read(char *s, int n);
 		int start(void);
 		int waitConnect(void);
 		int disconnect(void);
@@ -42,7 +43,7 @@ class MK71251
 	private:
 		int at_status;
 		void writeByte(unsigned char in);
-		int waitKey(const char *key);
+		int waitKey(const char *key, int max=127);
 		int waitCTS(void);
 };
 

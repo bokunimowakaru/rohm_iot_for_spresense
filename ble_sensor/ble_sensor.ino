@@ -138,43 +138,43 @@ void loop() {
     
     unsigned char data[32];
     int len =0;
-    unsigned int val_ui;
+    unsigned long val_ui;
     
-    val_ui = (unsigned int)((temp + 45.) * 374.5);
-    data[len] = (unsigned char)(val_ui & 0x00FF);	len++;
+    val_ui = (unsigned long)((temp + 45.) * 374.5);
+    data[len] = (unsigned char)(val_ui & 0xFF);	len++;
     data[len] = (unsigned char)(val_ui >> 8);		len++;
     data[len] = 0;								    len++;
     data[len] = 0;								    len++;
     data[len] = seq;							    len++;
     
-    val_ui = (unsigned int)(acc[0] * 4096);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(acc[0] * 4096);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
-    val_ui = (unsigned int)(acc[1] * 4096);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(acc[1] * 4096);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
-    val_ui = (unsigned int)(acc[2] * 4096);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(acc[2] * 4096);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
     
-    val_ui = (unsigned int)(mag[0] * 10);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(mag[0] * 10);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
-    val_ui = (unsigned int)(mag[1] * 10);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(mag[1] * 10);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
-    val_ui = (unsigned int)(mag[2] * 10);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(mag[2] * 10);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)(val_ui >> 8);       len++;
 
-    val_ui = (unsigned int)(press * 2048);
-    data[len] = (unsigned char)(val_ui & 0x00FF);   len++;
+    val_ui = (unsigned long)(press * 2048);
+    data[len] = (unsigned char)(val_ui & 0xFF);     len++;
     data[len] = (unsigned char)((val_ui>>8)&0xFF);  len++;
-    data[len] = (unsigned char)((val_ui>>16)&0xFF);  len++;
+    data[len] = (unsigned char)((val_ui>>16)&0xFF); len++;
     
 //  len=4;
     mk71251.sendScanResponse(data,len);
-    for(int i=0; i<5; i++){
+    for(int i=0; i<10; i++){
         delay(1000);
         Serial.print('z');
     }

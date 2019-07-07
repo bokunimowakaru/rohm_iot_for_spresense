@@ -37,7 +37,14 @@ MK71251::MK71251(void){
 	// 4: On-line Command Mode
 }
 
-byte MK71251::init(void){
+int MK71251::status(const char *s){
+	int cts = !digitalRead(PIN_D27);
+	printf("MK71251: %d %d, %s", at_status, cts, s);
+	if( strlen(s) == 0 ) printf("\n");
+	return at_status;
+}
+
+int MK71251::init(void){
 
 	// configure Output for GPIO3 (High: HCI mode, Low: AT command mode)
 	pinMode(PIN_D21, OUTPUT);
@@ -55,94 +62,113 @@ byte MK71251::init(void){
 	Serial2.begin(57600);
 
 	while(!waitCTS()){
-		printf("MK71251-02: ERROR CTS is High (Locked)\n");
+		status("ERROR CTS is High (Locked)\n");
 	}
 
+	while(!sendAt("AT&F")) delay(10000);
+	
 	// define advertising data
 	// 020106 -> Flags: LE General Discoverable Mode, BR/EDR Not Supported
 	// 05030f18180a -> Complete List of 16bit Service UUIDs: 180f, 180a
 	// 09084c61706973446576 -> Complete Local Name: LapisDev
-	while(!sendAt("ATS150=02010605030f180a1809084c61706973446576")){
-		delay(5000);
-		sendAt("AT&F");
-		delay(1000);
-	}
+	
+//	sendAt("ATS150=02010605030f180a1809084c61706973446576");
 	
 	// start advertising
 	start();
 	
 	/*
-	printf("MK71251-02: waiting for connection...\n");
+	status("waiting for connection...\n");
 
 	while (1) {
 		int ret = waitConnect();
 		if (ret) break;
 	}
 
-	printf("MK71251-02: connected succesfully\n");
+	status("connected succesfully\n");
 	*/
-	return (0);
+	return 0;
 }
 
 int MK71251::waitCTS(){
 	int cts=1;
+	int max = 20;
+	int i;
 	if( !digitalRead(PIN_D27) ) return 1;
-	printf("MK71251-02: waiting for CTS:LOW");
-	for(int i=0;i<100;i++) {
-		cts = digitalRead(PIN_D27);
-		if (!cts) break;
+	status("waiting for CTS:LOW.");
+	for(i=0;i<max;i++) {
+		cts = !digitalRead(PIN_D27);
+		if (cts) break;
 		delay(100);
-		if(!i%10) printf(".");
+		if(!(i%10)) printf(".");
 	}
-	printf("\nMK71251-02: CTS:LOW read succesfully\n");
-	return !cts;
+	if(i == max){
+		printf("\nMK71251-02: WARN CTS = HIGH\n");
+		if( at_status == 2 ) at_status = 3;
+	}
+	else{
+		printf("\n");
+		status("CTS:LOW read succesfully\n");
+	}
+	return cts;
 }
 
-byte MK71251::write(const char *data){
+int MK71251::write(unsigned char *data, int n){
 	int rc;
-	waitCTS();
-	rc = Serial2.write(*data);
-	if (rc != 0) {
-		return 0;
-	}else {
-		return -1;
+	for(int i=0; i<n;i++){
+		rc = Serial2.write( data[i] );
+		if (rc == 0) return -i;
 	}
+	return n;
 }
 
-byte MK71251::read(unsigned char *data){
+int MK71251::read(char *s, int n){
 	char c;
-	if ((c = Serial2.read()) && c != 255) {
-		*data = c;
-		return (0);
-	}else {
-		return (-1);
+	memset(s,0,n);
+	for(int i=0; i < n-1;i++){
+		c = Serial2.read();
+		if(c == 255 || c < 16) break;
+		s[i]=c;
 	}
+	return strlen(s);
 }
 
-int MK71251::waitKey(const char *key){
+int MK71251::waitKey(const char *key, int max){
 	char c = 0;
 	char ret[128];
 	int n=0,i,cmp=-1;
+	if(max>127) max=127;
+	if(max<1) max=1;
 
-	printf("> ");
-	for (i = 0; i < 1000; i++){
+	printf(">");
+	for (i = 0; i < max; i++){
 		c = Serial2.read();
 		if (c != 0 && c != 255) {
 			ret[n] = c;
 			n++;
 			if( isPrintable(c) ) printf("%c",c);
 			if( c == '\n' ){
-			//	printf("/");
+				printf(" ");
 				if(n >= 2) ret[n - 2] = '\0';
-				cmp = strncmp(ret, key, strlen(key));
+				cmp = strcmp(ret, "CONNECT");
+				if( at_status == 2 && cmp == 0 ) at_status = 3;
+				cmp = strcmp(ret, "ERROR");
+				if( cmp == 0 ) at_status = 1;
+				cmp = strcmp(ret, "NO CARRIER");
+				if( cmp == 0 ) at_status = 1;
+				cmp = strcmp(ret, key);
 				if(!cmp) break;
 				n=0;
 				i=0;
+				cmp = -1;		// i=maxで終了するときに前回cmp値の漏れ防止
 			}
 		}else delay(1);
 	}
 	printf("\n");
-	if( strcmp(key,"CONNECT") && cmp ) printf("MK71251-02: ERROR waitKey, %s, %d\n",key,cmp);
+	if( strcmp(key,"CONNECT") && cmp ){
+		status("ERROR waitKey, ");
+		printf("%s, %d\n",key,cmp);
+	}
 	return !cmp;	// 1:成功、0:エラー
 }
 
@@ -153,64 +179,75 @@ int MK71251::waitConnect(){
 }
 
 int MK71251::sendAt(const char *data){
-	int ret;
-	printf("MK71251-02: sendAt %s\n",data);
-	waitCTS();
-	Serial2.write(data);
-	Serial2.write("\r");
-	ret = waitKey("OK");
+	int ret = 0;
+	status("sendAt ");
+	printf("%s\n",data);
+	if(waitCTS()>0){
+		Serial2.write(data);
+		Serial2.write("\r");
+		ret = waitKey("OK");
+	}
 	return ret;
 }
 
 int MK71251::start(){
 	int ret=0;
-	printf("MK71251-02: start\n");
+	status("start\n");
 	if( at_status <= 1 ){
-		Serial2.write("ATD\r");
-		/*
-		ret = waitKey("OK");
-		if(ret){
-			printf("MK71251-02: started advertising\n");
+		if(waitCTS()>0){
+			Serial2.write("ATD\r");
 			at_status = 2;
+			/*
+			ret = waitKey("OK");
+			if(ret){
+				status("started advertising\n");
+				at_status = 2;
+			}
+			else status("ERROR start\n");
+			*/
 		}
-		else printf("MK71251-02: ERROR start\n");
-		*/
-		at_status = 1;
-	}else printf("MK71251-02: ERROR status=%d\n",at_status);
+	}else status("ERROR status\n");
 	return ret;	// 1:成功、0:エラー
 }
 
 int MK71251::disconnect(){
+	status("disconnect\n");
+	
 	int ret=1;
-	printf("MK71251-02: disconnect, status = %d\n",at_status);
-	if( at_status <= 2 ){
-		write("\r");
+	int cts = !digitalRead(PIN_D27);
+	if( at_status <= 2 && cts ){
+		Serial2.write("\r");
 		ret = waitKey("NO CARRIER");
 		if(ret) at_status = 1;
-		else printf("MK71251-02: ERROR failed disconnecting\n");
+		else status("ERROR failed disconnecting\n");
 	}
-	if( at_status == 2 || at_status == 3 ){
+	if((at_status == 2 || at_status == 3) && !cts){
+		status("Wainting for CTS\n");
+		at_status = 3;		// Centralからの接続中と判断[要検証]
+		return 0;
+	}
+	if(at_status == 3 && cts){
 		ret = sendAt("+++AT");
 		if( !ret ){
-			printf("MK71251-02: ERROR disconnect from On-line\n");
+			status("ERROR disconnect from On-line\n");
 			delay(100);
 			return 0;
 		}else{
 			at_status = 4;
-			printf("MK71251-02: On-line Command Mode\n");
+			status("On-line Command Mode\n");
 			delay(100);
 		}
 	}
-	if( at_status == 4 ){
+	if( at_status == 4 && cts){
 		ret = sendAt("ATH");
  		if( !ret ){
-	 		printf("MK71251-02: ERROR idle mode\n");
+	 		status("ERROR idle mode\n");
 			delay(100);
 			return 0;
 		}
 		at_status = 1;
 	}
-	printf("MK71251-02: Idle Command Mode\n");
+	status("Idle Command Mode\n");
 	return 1;	// 1:成功、0:エラー
 }
 
@@ -226,15 +263,43 @@ void MK71251::writeByte(unsigned char in){
 }
 
 int MK71251::sendScanResponse(unsigned char *data, int n){
-	printf("MK71251-02: sendScanResponse\n");
-	int ret = disconnect();
+	status("sendScanResponse\n");
+	int ret;
+	
+	if(waitKey("CONNECT",11)) at_status = 3;
+	// 7バイト文字 ＋ \r\n 2バイト×2
+	if(at_status == 3){
+		if( !waitCTS() ) return 0;
+		status("send app data=");
+		for(int j=0; j<n;j++){
+			for(int i=1; i >= 0; i--){
+				byte v = ((byte)data[j] >> (4 * i)) & 0x0F;
+				if(v < 10) v += (byte)'0';
+				else v += (byte)'a' - 10;
+				printf("%c",v);
+			}
+		}
+		printf("\n");
+		ret = write(data,n);
+		if( ret < 0){
+			status("ERROR cannot send, ");
+			printf("ret = %d\n", ret);
+		}
+		delay(100);	// データ区切り
+	}
+	ret = disconnect();
 	if( !ret ){
-		printf("MK71251-02: ERROR disconnect line\n");
+		status("ERROR disconnect line\n");
 		return 0;
-	}else printf("MK71251-02: disconnected\n");
+	}
 
+	int i = n * 2 + 15;
+	if(i > 76){
+		status("WARN ");
+		printf("data length = %d, %d\n",n,i);
+	}
 	waitCTS();
-	printf("ATS152=09FF0100");
+	status("send ATS152=09FF0100");
 	Serial2.write("ATS152=09FF0100");	// 09 = AD Type
 										// FF = Manufacture Specific
 										// Company Identifier(2 Octet)
@@ -244,6 +309,10 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 	Serial2.write('\r');
 	printf("\n");
 	ret = waitKey("OK");
+//	sendAt("ATS153?");
+	sendAt("ATS152?");
+//	sendAt("ATS129=60");
 	start();
+	status("done\n");
 	return 1;
 }
