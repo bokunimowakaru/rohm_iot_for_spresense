@@ -35,6 +35,8 @@ MK71251::MK71251(void){
 	// 2: Connecting Mode
 	// 3: On-line Mode
 	// 4: On-line Command Mode
+    payload[0] = 0x00;
+	payload_n=0;
 }
 
 int MK71251::status(const char *s){
@@ -143,6 +145,7 @@ int MK71251::waitKey(const char *key, int max){
 	int n=0,i,cmp=-1;
 	if(max>127) max=127;
 	if(max<1) max=1;
+	boolean send_app_data = false;
 
 	printf(">");
 	for (i = 0; i < max; i++){
@@ -154,12 +157,18 @@ int MK71251::waitKey(const char *key, int max){
 			if( c == '\n' ){
 				printf(" ");
 				if(n >= 2) ret[n - 2] = '\0';
-				cmp = strcmp(ret, "CONNECT");
-				if( at_status == 2 && cmp == 0 ) at_status = 3;
-				cmp = strcmp(ret, "ERROR");
-				if( cmp == 0 ) at_status = 1;
-				cmp = strcmp(ret, "NO CARRIER");
-				if( cmp == 0 ) at_status = 1;
+				if( !strcmp(ret, "CONNECT") ){
+					if( at_status == 2 && cmp == 0 ) at_status = 3;
+					send_app_data = true;
+				}
+				if( !strcmp(ret, "ERROR") ){
+					at_status = 1;
+					send_app_data = false;
+				}
+				if( !strcmp(ret, "NO CARRIER") ){
+					at_status = 1;
+					send_app_data = false;
+				}
 				cmp = strcmp(ret, key);
 				if(!cmp) break;
 				n=0;
@@ -173,6 +182,26 @@ int MK71251::waitKey(const char *key, int max){
 		status("ERROR waitKey, ");
 		printf("%s, %d\n",key,cmp);
 	}
+	
+	if( send_app_data ){
+		status("send VSSPP app data=");
+		for(int j=0; j < payload_n;j++){
+			for(int i=1; i >= 0; i--){
+				byte v = ((byte)payload[j] >> (4 * i)) & 0x0F;
+				if(v < 10) v += (byte)'0';
+				else v += (byte)'a' - 10;
+				printf("%c",v);
+			}
+		}
+		printf("\n");
+		n = write(payload,payload_n);
+		if( n < 0){
+			status("ERROR cannot send, ");
+			printf("n = %d\n", n);
+		}
+		delay(100);	// データ区切り
+	}
+	
 	return !cmp;	// 1:成功、0:エラー
 }
 
@@ -269,29 +298,22 @@ void MK71251::writeByte(unsigned char in){
 int MK71251::sendScanResponse(unsigned char *data, int n){
 	status("sendScanResponse\n");
 	int ret;
+	char companyIdentifier[]="0100";	// ID = 0001
+	byte companyIdentifier_bin[]={0x01,0x00};
 	
-	if(waitKey("CONNECT",14)) at_status = 3;
+	if( n > 31 ) n = 31;
+	memcpy(payload,companyIdentifier_bin,2);
+	memcpy(payload + 2,data,n);
+	payload_n = 2 + n;
+	
+	if(waitKey("CONNECT",14)){
+		at_status = 3;
+		status("Lapis VSSPP connected\n");
+		return 0;
+	}
 	// 7バイト文字 ＋ \r\n 2バイト×2
 	// NO CARRIERが 10バイトなので +3バイトして 14に
-	if(at_status == 3){
-		if( !waitCTS() ) return 0;
-		status("send app data=");
-		for(int j=0; j<n;j++){
-			for(int i=1; i >= 0; i--){
-				byte v = ((byte)data[j] >> (4 * i)) & 0x0F;
-				if(v < 10) v += (byte)'0';
-				else v += (byte)'a' - 10;
-				printf("%c",v);
-			}
-		}
-		printf("\n");
-		ret = write(data,n);
-		if( ret < 0){
-			status("ERROR cannot send, ");
-			printf("ret = %d\n", ret);
-		}
-		delay(100);	// データ区切り
-	}
+	
 	ret = disconnect();
 	if( !ret ){
 		status("ERROR disconnect line\n");
@@ -304,10 +326,12 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 		printf("data length = %d, %d\n",n,i);
 	}
 	waitCTS();
-	status("send ATS152=09FF0100");
-	Serial2.write("ATS152=09FF0100");	// 09 = AD Type
-										// FF = Manufacture Specific
-										// Company Identifier(2 Octet)
+	status("send ATS152=09FF");
+	printf("%s",companyIdentifier);
+	Serial2.write("ATS152=09FF");	// 09 = AD Type
+									// FF = Manufacture Specific
+	Serial2.write(companyIdentifier);
+									// Company Identifier(2 Octet)
 	for(int i=0; i<n;i++){
 		writeByte((byte)data[i]);
 	}

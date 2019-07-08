@@ -1,16 +1,16 @@
-# y“à—ez  
-  ƒ[ƒ€»Bluetooth LE Add-onƒ{[ƒhSPRESENSE-BLE-EVK-701‚ÆAƒZƒ“ƒTAdd-onƒ{[ƒh
-  SPRESENSE-SENSOR-EVK-701 ‚ð ƒ\ƒj[ƒZƒ~ƒRƒ“ƒ_ƒNƒ^ƒ\ƒŠƒ…[ƒVƒ‡ƒ“ƒY» Spresense‚Ö
-  Ú‘±‚µAŠeƒZƒ“ƒT’l‚ðBLE‘—M‚·‚é‚½‚ß‚ÌƒvƒƒOƒ‰ƒ€‚Å‚·B
+# ã€å†…å®¹ã€‘  
+  ãƒ­ãƒ¼ãƒ è£½Bluetooth LE Add-onãƒœãƒ¼ãƒ‰SPRESENSE-BLE-EVK-701ã¨ã€ã‚»ãƒ³ã‚µAdd-onãƒœãƒ¼ãƒ‰
+  SPRESENSE-SENSOR-EVK-701 ã‚’ ã‚½ãƒ‹ãƒ¼ã‚»ãƒŸã‚³ãƒ³ãƒ€ã‚¯ã‚¿ã‚½ãƒªãƒ¥ãƒ¼ã‚·ãƒ§ãƒ³ã‚ºè£½ Spresenseã¸
+  æŽ¥ç¶šã—ã€å„ã‚»ãƒ³ã‚µå€¤ã‚’BLEé€ä¿¡ã™ã‚‹ãŸã‚ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã§ã™ã€‚
 
 	ble_sensor:
-	Arduino IDE‚Åble_sensorƒtƒHƒ‹ƒ_“à‚Ìble_sensor.ino‚ðŠJ‚«ASpresense‚Ö‘‚«ž‚ñ‚Å‚­‚¾‚³‚¢B
+	Arduino IDEã§ble_sensorãƒ•ã‚©ãƒ«ãƒ€å†…ã®ble_sensor.inoã‚’é–‹ãã€Spresenseã¸æ›¸ãè¾¼ã‚“ã§ãã ã•ã„ã€‚
 
-# y•s‹ï‡z  
-  Scan Response ‘—M‚Ì—e—Ê‚ª10ƒoƒCƒgiƒf[ƒ^6ƒoƒCƒgj‚µ‚©‘—M‚Å‚«‚È‚¢B
+# ã€ä¸å…·åˆã€‘  
+  Scan Response é€ä¿¡ã®å®¹é‡ãŒ10ãƒã‚¤ãƒˆï¼ˆãƒ‡ãƒ¼ã‚¿6ãƒã‚¤ãƒˆï¼‰ã—ã‹é€ä¿¡ã§ããªã„ã€‚
   
-# yŽQl•¶Œ£z  
+# ã€å‚è€ƒæ–‡çŒ®ã€‘  
   
-  –{ƒvƒƒOƒ‰ƒ€‚âƒŒƒ|ƒWƒgƒŠ‚É‰º‹L‚©‚çƒ_ƒEƒ“ƒ[ƒh‚µ‚½ƒ\[ƒXƒŠƒXƒg‚ªŠÜ‚Ü‚ê‚Ü‚·B
+  æœ¬ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚„ãƒ¬ãƒã‚¸ãƒˆãƒªã«ä¸‹è¨˜ã‹ã‚‰ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ãŸã‚½ãƒ¼ã‚¹ãƒªã‚¹ãƒˆãŒå«ã¾ã‚Œã¾ã™ã€‚
   https://github.com/RohmSemiconductor/Arduino
   

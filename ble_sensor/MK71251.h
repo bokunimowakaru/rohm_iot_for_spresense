@@ -31,6 +31,8 @@ class MK71251
 {
 	public:
 		MK71251(void);
+		byte payload[34];
+		int payload_n;
 		int init(void);
 		int status(const char *s);
 		int write(unsigned char *data,int n);
