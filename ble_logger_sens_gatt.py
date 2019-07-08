@@ -38,6 +38,9 @@ p = Peripheral(address, addrType='random')
 p.setDelegate(MyDelegate(DefaultDelegate))
 
 # Setup to turn notifications on
+#   svc = p.getServiceByUUID( service_uuid )
+#   ch = svc.getCharacteristics( char_uuid )[0]
+#   ch.write( setup_data )
 p.writeCharacteristic(0x0404, b'\x01\x00', True)
 
 # Main
