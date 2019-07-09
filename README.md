@@ -5,6 +5,12 @@
 
 	ble_sensor:
 	Arduino IDEでble_sensorフォルダ内のble_sensor.inoを開き、Spresenseへ書き込んでください。
+	
+	ble_logger.py:
+	Raspberry PiなどでBLEスキャンを行うツール
+	
+	ble_logger_sens_gatt.py:
+	Raspberry Piなどでble_sensorからGATTでデータ取得を行うツール
 
 # 【不具合】  
   Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
