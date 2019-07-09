@@ -12,7 +12,8 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
   接続し、各センサ値をBLE送信するためのプログラムです。
   
 【不具合】
-  Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
+  - VSSPP受信動作は製作途中
+  - Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
   
 【参考文献】
   
@@ -50,7 +51,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 /*****************************************************************************
-https://github.com/RohmSemiconductor/Arduino/blob/master/Sensors-Add-on-Demo/Sensors-Add-on-Demo.ino
+https://github.com/RohmSemiconductor/Arduino/blob/master/Sensors-Add-on-Demo
 ROHM Co.,Ltd.
 ******************************************************************************
   Sensors-Add-on-Demo.ino
@@ -90,20 +91,20 @@ MK71251 mk71251;
 bool KX122_found = false;
 bool KX126_found = false;
 
-void setup() {
+void setup(){
     byte rc;
 
     Serial.begin(115200);
-    while (!Serial);
+    while(!Serial);
 
     Wire.begin();
 
     rc = kx122.init();
-    if (rc != 0) Serial.flush();
+    if(rc != 0) Serial.flush();
     else KX122_found = true;
 
     rc = kx126.init();
-    if (rc != 0) Serial.flush();
+    if(rc != 0) Serial.flush();
     else KX126_found = true;
 
     Serial.print("Accelerometer KX122/KX126 initialization ");
@@ -112,17 +113,17 @@ void setup() {
     
     rc = bm1422agmv.init();
     Serial.print("Magneto-sensor BM1422AGMV initialization ");
-    if (rc != 0){ Serial.println("FAILED"); Serial.flush();}
+    if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
 
     rc = bm1383aglv.init();
     Serial.print("Pressure sensor BM1383AGLV initialization ");
-    if (rc != 0){ Serial.println("FAILED"); Serial.flush();}
+    if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
 
     rc = mk71251.init();
     Serial.print("BLE Module MK71251 initialization ");
-    if (rc != 0){ Serial.println("FAILED"); Serial.flush();}
+    if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
 }
 
@@ -146,108 +147,115 @@ int d_append_uint24(byte *array,int i, uint32_t d){
     return i+3;
 }
 
-void loop() {
-    
-    /* センサ値の取得 */
-    byte rc;
-    float acc[3], mag[3], press = 0, temp = 0;
-    
-    if(KX122_found){
-        rc = kx122.get_val(acc);
-        if (rc == 0) {
-            Serial.write("KX122 (X) = ");
-            Serial.print(acc[0]);
-            Serial.println(" [g]");
-            Serial.write("KX122 (Y) = ");
-            Serial.print(acc[1]);
-            Serial.println(" [g]");
-            Serial.write("KX122 (Z) = ");
-            Serial.print(acc[2]);
-            Serial.println(" [g]");
-        }
-    }else if(KX126_found){
-        rc = kx126.get_val(acc);
-        if (rc == 0) {
-            Serial.write("KX126 (X) = ");
-            Serial.print(acc[0]);
-            Serial.println(" [g]");
-            Serial.write("KX126 (Y) = ");
-            Serial.print(acc[1]);
-            Serial.println(" [g]");
-            Serial.write("KX126 (Z) = ");
-            Serial.print(acc[2]);
-            Serial.println(" [g]");
-        }
-    }
-
-    rc = bm1422agmv.get_val(mag);
-    if (rc == 0) {
-        Serial.print("BM1422AGMV XDATA=");
-        Serial.print(mag[0], 3);
-        Serial.println("[uT]");
-        Serial.print("BM1422AGMV YDATA=");
-        Serial.print(mag[1], 3);
-        Serial.println("[uT]");
-        Serial.print("BM1422AGMV ZDATA=");
-        Serial.print(mag[2], 3);
-        Serial.println("[uT]");
-    }
-    
-    rc = bm1383aglv.get_val(&press, &temp);
-    if (rc == 0) {
-        Serial.print("BM1383AGLV (PRESS) = ");
-        Serial.print(press);
-        Serial.println(" [hPa]");
-        Serial.print("BM1383AGLV (TEMP) =  ");
+void sensors_log(float temp, float press, float *acc, float *mag, byte *rc){
+    if(!rc[0]){
+        Serial.print("Temperature    =  ");
         Serial.print(temp);
         Serial.println(" [degrees Celsius]");
         Serial.println();
     }
+    if(!rc[2]){
+        Serial.print("Pressure        = ");
+        Serial.print(press);
+        Serial.println(" [hPa]");
+    }
+    if(!rc[3]){
+        Serial.write("Accelerometer X = ");
+        Serial.print(acc[0]);
+        Serial.println(" [g]");
+        Serial.write("Accelerometer Y = ");
+        Serial.print(acc[1]);
+        Serial.println(" [g]");
+        Serial.write("Accelerometer Z = ");
+        Serial.print(acc[2]);
+        Serial.println(" [g]");
+    }
+    if(!rc[4]){
+        Serial.print("Geomagnetic X   = ");
+        Serial.print(mag[0], 3);
+        Serial.println("[uT]");
+        Serial.print("Geomagnetic Y   = ");
+        Serial.print(mag[1], 3);
+        Serial.println("[uT]");
+        Serial.print("Geomagnetic Z   = ");
+        Serial.print(mag[2], 3);
+        Serial.println("[uT]");
+    }
+}
+
+int sensors_data(
+    unsigned char *data,
+    float temp, float press, float *acc, float *mag, byte *rc
+){
+    int len =0;
+    unsigned long val_ui;
+    if(!rc[0]){
+	    val_ui = (unsigned long)((temp + 45.) * 374.5);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+    }else len = d_append_uint16(data,len,0);
+    if(!rc[2]){
+	    val_ui = (unsigned long)(press * 2048);
+	    len = d_append_uint24(data,len,(uint32_t)(val_ui));
+    }else len = d_append_uint24(data,len,0);
+    
+    len = d_append(data,len,seq);
+    if(!rc[3]){
+	    val_ui = (unsigned long)(acc[0] * 4096);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+	    val_ui = (unsigned long)(acc[1] * 4096);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+	    val_ui = (unsigned long)(acc[2] * 4096);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+    }else{
+		len = d_append_uint24(data,len,0);
+		len = d_append_uint24(data,len,0);
+	}
+    if(!rc[4]){
+	    val_ui = (unsigned long)(mag[0] * 10);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+	    val_ui = (unsigned long)(mag[1] * 10);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+	    val_ui = (unsigned long)(mag[2] * 10);
+	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+    }else{
+		len = d_append_uint24(data,len,0);
+		len = d_append_uint24(data,len,0);
+	}
+	return len;
+}
+
+void loop(){
+    byte rc[5];
+    float acc[3], mag[3], press = 0, temp = 0;
+        
+    /* センサ値の取得 */
+    rc[0] = bm1383aglv.get_val(&press, &temp);
+    rc[1] = 255;
+    rc[2] = rc[0];
+    if(KX122_found){
+        rc[3]= kx122.get_val(acc);
+    }else if(KX126_found){
+        rc[3] = kx126.get_val(acc);
+    }
+    rc[4] = bm1422agmv.get_val(mag);
     
     /* データ送信 */
     unsigned char data[32];
-    
-    int len =0;
-    unsigned long val_ui;
-    
-    val_ui = (unsigned long)((temp + 45.) * 374.5);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    
-    val_ui = (unsigned long)(press * 2048);
-    len = d_append_uint24(data,len,(uint32_t)(val_ui));    
-    
-    val_ui = d_append(data,len,seq);
-    
-    val_ui = (unsigned long)(acc[0] * 4096);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    val_ui = (unsigned long)(acc[1] * 4096);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    val_ui = (unsigned long)(acc[2] * 4096);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    
-    val_ui = (unsigned long)(mag[0] * 10);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    val_ui = (unsigned long)(mag[1] * 10);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    val_ui = (unsigned long)(mag[2] * 10);
-    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-
+    int len = sensors_data(data, temp, press, acc, mag, rc);
     mk71251.sendScanResponse(data,len);
-
-    /* 受信 */
+    
+    if(!(seq%8)) sensors_log(temp, press, acc, mag, rc);
+    
+    /* 受信 */	/*
     char s[32];
     if( mk71251.read(s,32) > 0 ){
         Serial.print("Read ");
         Serial.println(s);
-    }
+    }	*/
     
     /* 次回の送信待ち（待機） */
-    for(int i=0; i<10; i++){
-        delay(1000);
-        Serial.print('z');
-    }
-    
-    /* 待機完了 */
+    delay(5000);
     Serial.println("\n!---------- Wake up ----------!");
     seq++;
+    /* 待機完了 */
 }

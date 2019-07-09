@@ -39,7 +39,7 @@ class MK71251
 		int read(char *s, int n);
 		int start(void);
 		int waitConnect(void);
-		int disconnect(void);
+		int disconnect(int mode=0);
 		int sendScanResponse(unsigned char *data, int n);
 		int sendAt(const char *data);
 	private:

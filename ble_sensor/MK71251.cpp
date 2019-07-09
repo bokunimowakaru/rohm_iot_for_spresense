@@ -97,7 +97,7 @@ int MK71251::waitCTS(){
 	int max = 50;
 	int i;
 	if( !digitalRead(PIN_D27) ) return 1;
-	status("waiting for CTS:LOW.");
+	status("Waiting for CTS:LOW.");
 	for(i=0;i<max;i++) {
 		cts = !digitalRead(PIN_D27);
 		if (cts) break;
@@ -243,8 +243,10 @@ int MK71251::start(){
 	return ret;	// 1:成功、0:エラー
 }
 
-int MK71251::disconnect(){
-	status("disconnect\n");
+int MK71251::disconnect(int mode){
+	status("disconnect mode=");
+	if(mode==0) printf("Off-line(0)\n");
+	else        printf("On-line(1)\n");
 	
 	int ret=1;
 	int cts = !digitalRead(PIN_D27);
@@ -254,8 +256,8 @@ int MK71251::disconnect(){
 		if(ret) at_status = 1;
 		else status("ERROR failed disconnecting\n");
 	}
-	if((at_status == 2 || at_status == 3) && !cts){
-		status("Wainting for CTS\n");
+	if(at_status == 2 && !cts){
+		status("Waiting for CTS\n");
 		at_status = 3;		// Centralからの接続中と判断[要検証]
 		return 0;
 	}
@@ -266,7 +268,8 @@ int MK71251::disconnect(){
 			delay(100);
 			return 0;
 		}else{
-			at_status = 4;
+			if(mode==0) at_status = 4;
+			else		at_status = 1;
 			status("On-line Command Mode\n");
 			delay(100);
 		}
@@ -289,7 +292,7 @@ void MK71251::writeByte(unsigned char in){
 		byte v = ((byte)in >> (4 * i)) & 0x0F;
 		if(v < 10) v += (byte)'0';
 		else v += (byte)'a' - 10;
-		waitCTS();
+	//	waitCTS();
 		Serial2.write(v);
 		printf("%c",v);
 	}
@@ -326,6 +329,7 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 		printf("data length = %d, %d\n",n,i);
 	}
 	waitCTS();
+//	sendAt("ATS129=60");
 	status("send ATS152=09FF");
 	printf("%s",companyIdentifier);
 	Serial2.write("ATS152=09FF");	// 09 = AD Type
@@ -339,8 +343,7 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 	printf("\n");
 	ret = waitKey("OK");
 //	sendAt("ATS153?");
-	sendAt("ATS152?");
-//	sendAt("ATS129=60");
+//	sendAt("ATS152?");
 	start();
 	status("done\n");
 	return 1;
