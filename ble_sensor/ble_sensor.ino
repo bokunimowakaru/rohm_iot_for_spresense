@@ -152,7 +152,6 @@ void sensors_log(float temp, float press, float *acc, float *mag, byte *rc){
         Serial.print("Temperature    =  ");
         Serial.print(temp);
         Serial.println(" [degrees Celsius]");
-        Serial.println();
     }
     if(!rc[2]){
         Serial.print("Pressure        = ");
@@ -246,12 +245,12 @@ void loop(){
     
     if(!(seq%8)) sensors_log(temp, press, acc, mag, rc);
     
-    /* 受信 */	/*
+    /* 受信 */
     char s[32];
     if( mk71251.read(s,32) > 0 ){
         Serial.print("Read ");
         Serial.println(s);
-    }	*/
+    }
     
     /* 次回の送信待ち（待機） */
     delay(5000);

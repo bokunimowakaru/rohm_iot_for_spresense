@@ -256,7 +256,7 @@ int MK71251::disconnect(int mode){
 		if(ret) at_status = 1;
 		else status("ERROR failed disconnecting\n");
 	}
-	if(at_status == 2 && !cts){
+	if((at_status == 2 || at_status == 3) && !cts){
 		status("Waiting for CTS\n");
 		at_status = 3;		// Centralからの接続中と判断[要検証]
 		return 0;
@@ -292,7 +292,7 @@ void MK71251::writeByte(unsigned char in){
 		byte v = ((byte)in >> (4 * i)) & 0x0F;
 		if(v < 10) v += (byte)'0';
 		else v += (byte)'a' - 10;
-	//	waitCTS();
+		waitCTS();
 		Serial2.write(v);
 		printf("%c",v);
 	}
