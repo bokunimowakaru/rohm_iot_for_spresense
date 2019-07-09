@@ -24,7 +24,8 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
   下記は Rohm ならびに KokiOkada による元の権利表示です。
 */
 /*******************************************************************************
-rohm_iot_for_spresense/rohm/LICENSE
+https://github.com/RohmSemiconductor/Arduino/blob/master/LICENSE
+KokiOkada-Rohm
 ********************************************************************************
   MIT License
 
@@ -49,7 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 /*****************************************************************************
-rohm_iot_for_spresense/rohm/Sensors-Add-on-Demo.ino
+https://github.com/RohmSemiconductor/Arduino/blob/master/Sensors-Add-on-Demo/Sensors-Add-on-Demo.ino
+ROHM Co.,Ltd.
 ******************************************************************************
   Sensors-Add-on-Demo.ino
  Copyright (c) 2018 ROHM Co.,Ltd.
