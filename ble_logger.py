@@ -19,7 +19,7 @@
 #   本プログラムを作成するにあたり下記を参考にしました
 #   https://ianharvey.github.io/bluepy-doc/scanner.html
 
-interval = 5 # 動作間隔
+interval = 1.01 # 動作間隔
 
 from bluepy import btle
 from sys import argv

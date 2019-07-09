@@ -21,8 +21,6 @@
 
 from bluepy import btle
 from bluepy.btle import Peripheral, DefaultDelegate
-from sys import argv
-import getpass
 
 address = 'xx:xx:xx:xx:xx:xx' # BLEデバイス（ペリフェラル側）のアドレスを記入
 
@@ -35,27 +33,6 @@ class MyDelegate(DefaultDelegate):
         # ... perhaps check cHandle
         # ... process 'data'
         print( data )
-
-if address == 'xx:xx:xx:xx:xx:xx':
-    scanner = btle.Scanner()
-    # BLE受信処理
-    try:
-        devices = scanner.scan(5)
-    except Exception as e:
-        print("ERROR",e)
-        if getpass.getuser() != 'root':
-            print('使用方法: sudo', argv[0])
-        exit()
-    # 受信データについてBLEデバイス毎の処理
-    for dev in devices:
-        for (adtype, desc, val) in dev.getScanData():
-            if adtype == 8 and val[0:10] == 'LapisDev':
-                print("\nDevice %s (%s), RSSI=%d dB, Connectable=%s" % (dev.addr, dev.addrType, dev.rssi, dev.connectable))
-                print("  %3d %s = %s" % (adtype, desc, val))
-                address = dev.addr
-if address == 'xx:xx:xx:xx:xx:xx':
-    print("no LapisDev found")
-    exit()
 
 p = Peripheral(address, addrType='random')
 p.setDelegate(MyDelegate(DefaultDelegate))
