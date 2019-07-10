@@ -21,7 +21,7 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
   
   元の権利は Rohm と KokiOkada に帰属し、改変部の権利は国野亘に帰属します。
   配布時はファイル「LISENSE」を添付ください。
-  https://github.com/bokunimowakaru/rohm_iot_for_spresense/ble_sensor/LICENSE
+  https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/ble_sensor/LICENSE
 */
 
 #include "Arduino.h"
