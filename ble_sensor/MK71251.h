@@ -47,6 +47,7 @@ class MK71251
 		void writeByte(unsigned char in);
 		int waitKey(const char *key, int max=127);
 		int waitCTS(void);
+		int sendVSSPP(void);
 };
 
 #endif // _MK71251_H_

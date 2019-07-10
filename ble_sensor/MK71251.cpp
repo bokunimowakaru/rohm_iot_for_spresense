@@ -27,7 +27,6 @@
 #include "Arduino.h"
 #include "MK71251.h"
 
-
 MK71251::MK71251(void){
 	at_status = 0;
 	// 0: 初期状態・状態不明
@@ -35,7 +34,7 @@ MK71251::MK71251(void){
 	// 2: Connecting Mode
 	// 3: On-line Mode
 	// 4: On-line Command Mode
-    payload[0] = 0x00;
+	payload[0] = 0x00;
 	payload_n=0;
 }
 
@@ -73,22 +72,11 @@ int MK71251::init(void){
 	// 020106 -> Flags: LE General Discoverable Mode, BR/EDR Not Supported
 	// 05030f18180a -> Complete List of 16bit Service UUIDs: 180f, 180a
 	// 09084c61706973446576 -> Complete Local Name: LapisDev
-	
-//	sendAt("ATS150=02010605030f180a1809084c61706973446576");
+	sendAt("ATS150=02010605030f180a1809084c61706973446576");
 	
 	// start advertising
 	start();
 	
-	/*
-	status("waiting for connection...\n");
-
-	while (1) {
-		int ret = waitConnect();
-		if (ret) break;
-	}
-
-	status("connected succesfully\n");
-	*/
 	return 0;
 }
 
@@ -158,7 +146,7 @@ int MK71251::waitKey(const char *key, int max){
 				printf(" ");
 				if(n >= 2) ret[n - 2] = '\0';
 				if( !strcmp(ret, "CONNECT") ){
-					if( at_status == 2 && cmp == 0 ) at_status = 3;
+					if( at_status == 2 ) at_status = 3;
 					send_app_data = true;
 				}
 				if( !strcmp(ret, "ERROR") ){
@@ -182,26 +170,9 @@ int MK71251::waitKey(const char *key, int max){
 		status("ERROR waitKey, ");
 		printf("%s, %d\n",key,cmp);
 	}
-	
 	if( send_app_data ){
-		status("send VSSPP app data=");
-		for(int j=0; j < payload_n;j++){
-			for(int i=1; i >= 0; i--){
-				byte v = ((byte)payload[j] >> (4 * i)) & 0x0F;
-				if(v < 10) v += (byte)'0';
-				else v += (byte)'a' - 10;
-				printf("%c",v);
-			}
-		}
-		printf("\n");
-		n = write(payload,payload_n);
-		if( n < 0){
-			status("ERROR cannot send, ");
-			printf("n = %d\n", n);
-		}
-		delay(100);	// データ区切り
+		sendVSSPP();	// CTSの状態に関わらず送信する
 	}
-	
 	return !cmp;	// 1:成功、0:エラー
 }
 
@@ -223,10 +194,31 @@ int MK71251::sendAt(const char *data){
 	return ret;
 }
 
+int MK71251::sendVSSPP(){
+	if( at_status != 3 ) return 0;
+	status("send VSSPP app data=");
+	for(int j=0; j < payload_n;j++){
+		for(int i=1; i >= 0; i--){
+			byte v = ((byte)payload[j] >> (4 * i)) & 0x0F;
+			if(v < 10) v += (byte)'0';
+			else v += (byte)'a' - 10;
+			printf("%c",v);
+		}
+	}
+	printf("\n");
+	int n = write(payload,payload_n);
+	if( n < 0){
+		status("ERROR cannot send, ");
+		printf("n = %d\n", n);
+	}
+	delay(100);	// データ区切り
+	return 1;
+}
+
 int MK71251::start(){
 	int ret=0;
 	status("start\n");
-	if( at_status <= 1 ){
+	if( at_status <= 1 || at_status == 4){
 		if(waitCTS()>0){
 			Serial2.write("ATD\r");
 			at_status = 2;
@@ -246,7 +238,7 @@ int MK71251::start(){
 int MK71251::disconnect(int mode){
 	status("disconnect mode=");
 	if(mode==0) printf("Off-line(0)\n");
-	else        printf("On-line(1)\n");
+	else		printf("On-line(1)\n");
 	
 	int ret=1;
 	int cts = !digitalRead(PIN_D27);
@@ -254,7 +246,8 @@ int MK71251::disconnect(int mode){
 		Serial2.write("\r");
 		ret = waitKey("NO CARRIER");
 		if(ret) at_status = 1;
-		else status("ERROR failed disconnecting\n");
+		else status("ERROR no response\n");
+		status("Idle Command Mode\n");
 	}
 	if((at_status == 2 || at_status == 3) && !cts){
 		status("Waiting for CTS\n");
@@ -264,26 +257,24 @@ int MK71251::disconnect(int mode){
 	if(at_status == 3 && cts){
 		ret = sendAt("+++AT");
 		if( !ret ){
-			status("ERROR disconnect from On-line\n");
+			status("ERROR cannot send +++AT\n");
 			delay(100);
 			return 0;
-		}else{
-			if(mode==0) at_status = 4;
-			else		at_status = 1;
-			status("On-line Command Mode\n");
-			delay(100);
 		}
+		at_status = 4;
+		status("On-line Command Mode\n");
+		delay(100);
 	}
-	if( at_status == 4 && cts){
+	if(mode == 0 && at_status == 4 && cts){
 		ret = sendAt("ATH");
  		if( !ret ){
-	 		status("ERROR idle mode\n");
+	 		status("ERROR cannot send ATH\n");
 			delay(100);
 			return 0;
 		}
 		at_status = 1;
+		status("Idle Command Mode\n");
 	}
-	status("Idle Command Mode\n");
 	return 1;	// 1:成功、0:エラー
 }
 
@@ -311,13 +302,18 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 	
 	if(waitKey("CONNECT",14)){
 		at_status = 3;
-		status("Lapis VSSPP connected\n");
 		return 0;
 	}
 	// 7バイト文字 ＋ \r\n 2バイト×2
 	// NO CARRIERが 10バイトなので +3バイトして 14に
 	
-	ret = disconnect();
+	if(at_status == 3){
+		status("Lapis VSSPP connected\n");
+		if( waitCTS() > 0 ) sendVSSPP();
+		return 0;
+	}
+	
+	ret = disconnect(1);
 	if( !ret ){
 		status("ERROR disconnect line\n");
 		return 0;

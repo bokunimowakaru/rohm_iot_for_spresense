@@ -15,63 +15,14 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
   - VSSPP受信動作は製作途中
   - Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
   
-【参考文献】
-  
+【ライセンス】
   本プログラムやレポジトリに下記からダウンロードしたソースリストが含まれます。
   https://github.com/RohmSemiconductor/Arduino
   
   元の権利は Rohm と KokiOkada に帰属し、改変部の権利は国野亘に帰属します。
-  
-  下記は Rohm ならびに KokiOkada による元の権利表示です。
+  配布時はファイル「LISENSE」を添付ください。
+  https://github.com/bokunimowakaru/rohm_iot_for_spresense/ble_sensor/LICENSE
 */
-/*******************************************************************************
-https://github.com/RohmSemiconductor/Arduino/blob/master/LICENSE
-KokiOkada-Rohm
-********************************************************************************
-  MIT License
-
-Copyright (c) 2018 KokiOkada
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-/*****************************************************************************
-https://github.com/RohmSemiconductor/Arduino/blob/master/Sensors-Add-on-Demo
-ROHM Co.,Ltd.
-******************************************************************************
-  Sensors-Add-on-Demo.ino
- Copyright (c) 2018 ROHM Co.,Ltd.
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-*******************************************************************************/
 
 #include "Arduino.h"
 #include <Wire.h>
@@ -189,38 +140,38 @@ int sensors_data(
     int len =0;
     unsigned long val_ui;
     if(!rc[0]){
-	    val_ui = (unsigned long)((temp + 45.) * 374.5);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)((temp + 45.) * 374.5);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
     }else len = d_append_uint16(data,len,0);
     if(!rc[2]){
-	    val_ui = (unsigned long)(press * 2048);
-	    len = d_append_uint24(data,len,(uint32_t)(val_ui));
+        val_ui = (unsigned long)(press * 2048);
+        len = d_append_uint24(data,len,(uint32_t)(val_ui));
     }else len = d_append_uint24(data,len,0);
     
     len = d_append(data,len,seq);
     if(!rc[3]){
-	    val_ui = (unsigned long)(acc[0] * 4096);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-	    val_ui = (unsigned long)(acc[1] * 4096);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-	    val_ui = (unsigned long)(acc[2] * 4096);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(acc[0] * 4096);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(acc[1] * 4096);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(acc[2] * 4096);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
     }else{
-		len = d_append_uint24(data,len,0);
-		len = d_append_uint24(data,len,0);
-	}
+        len = d_append_uint24(data,len,0);
+        len = d_append_uint24(data,len,0);
+    }
     if(!rc[4]){
-	    val_ui = (unsigned long)(mag[0] * 10);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-	    val_ui = (unsigned long)(mag[1] * 10);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
-	    val_ui = (unsigned long)(mag[2] * 10);
-	    len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(mag[0] * 10);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(mag[1] * 10);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_ui = (unsigned long)(mag[2] * 10);
+        len = d_append_uint16(data,len,(uint16_t)(val_ui));
     }else{
-		len = d_append_uint24(data,len,0);
-		len = d_append_uint24(data,len,0);
-	}
-	return len;
+        len = d_append_uint24(data,len,0);
+        len = d_append_uint24(data,len,0);
+    }
+    return len;
 }
 
 void loop(){
@@ -231,18 +182,14 @@ void loop(){
     rc[0] = bm1383aglv.get_val(&press, &temp);
     rc[1] = 255;
     rc[2] = rc[0];
-    if(KX122_found){
-        rc[3]= kx122.get_val(acc);
-    }else if(KX126_found){
-        rc[3] = kx126.get_val(acc);
-    }
+    if(KX122_found) rc[3]= kx122.get_val(acc);
+    else if(KX126_found) rc[3] = kx126.get_val(acc);
     rc[4] = bm1422agmv.get_val(mag);
     
     /* データ送信 */
     unsigned char data[32];
     int len = sensors_data(data, temp, press, acc, mag, rc);
     mk71251.sendScanResponse(data,len);
-    
     if(!(seq%8)) sensors_log(temp, press, acc, mag, rc);
     
     /* 受信 */
@@ -253,7 +200,7 @@ void loop(){
     }
     
     /* 次回の送信待ち（待機） */
-    delay(5000);
+    delay(1000);
     Serial.println("\n!---------- Wake up ----------!");
     seq++;
     /* 待機完了 */
