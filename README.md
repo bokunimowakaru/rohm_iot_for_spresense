@@ -4,13 +4,15 @@ SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューション
 接続し、各センサ値をBLE送信するためのプログラムです。
 
 	ble_sensor:
-	フォルダごと、パソコンにダウンロードし、Arduino IDEでble_sensorフォルダ内のble_sensor.inoを開き、Spresenseへ書き込んでください。
+	1.フォルダごと、パソコンにダウンロードしてください。
+	2.Arduino IDEでble_sensorフォルダ内のble_sensor.inoを開いてください。
+	3.Writeボタンで、Spresenseへ書き込んでください。
 	
 	ble_logger.py:
-	Raspberry PiなどでBLEスキャンを行うツール
+	Raspberry PiなどでBLEスキャンを行うツールです。
 	
 	ble_logger_sens_gatt.py:
-	Raspberry Piなどでble_sensorからGATTでデータ取得を行うツール
+	Raspberry Piなどでble_sensorからGATTでデータ取得を行うツールです。
 
 # 【送信データ】  
 センサから得られた、温度、気圧、加速度、地磁気などのデータは、疑似シリアル通信（VSSPP）で送信します。  
