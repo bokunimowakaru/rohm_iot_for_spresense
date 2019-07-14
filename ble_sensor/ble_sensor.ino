@@ -11,8 +11,7 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
   SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューションズ製 Spresenseへ
   接続し、各センサ値をBLE送信するためのプログラムです。
   
-【不具合】
-  - VSSPP受信動作は製作途中
+【制約】
   - Scan Response 送信の容量が10バイト（データ6バイト）しか送信できない。
   
 【ライセンス】
