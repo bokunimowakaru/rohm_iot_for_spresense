@@ -193,11 +193,11 @@ void loop(){
     if(!(seq%8)) sensors_log(temp, press, acc, mag, rc);
     
     /* 受信 */
-    char s[32];
-    if( mk71251.read(s,32) > 0 ){
-        Serial.print("Read ");
-        Serial.println(s);
-    }
+//  char s[32];
+//  if( mk71251.read(s,32) > 0 ){
+//      Serial.print("Read ");
+//      Serial.println(s);
+//  }
     
     /* 次回の送信待ち（待機） */
     delay(1000);
