@@ -73,6 +73,10 @@ while True:
 
                 # 画面へ表示
                 print('    ID            =',sensors['ID'])
+                if sensors['ID'] == '0x179' and sensors['SEQ'] == 15:
+                    print('    No Sensors')
+                    isRohmMedal = False
+                    break
                 print('    SEQ           =',sensors['SEQ'])
                 print('    Temperature   =',round(sensors['Temperature'],2),'℃')
                 print('    Pressure      =',round(sensors['Pressure'],3),'hPa')
