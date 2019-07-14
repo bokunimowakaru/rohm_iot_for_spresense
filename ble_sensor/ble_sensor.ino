@@ -32,6 +32,10 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
 #include "MK71251.h"
 #include <string.h>
 
+// #define MODE_LOWPOWER
+#include <LowPower.h>
+#include <RTC.h>
+
 KX122 kx122(KX122_DEVICE_ADDRESS_1F);
 KX126 kx126(KX126_DEVICE_ADDRESS_1F);
 BM1422AGMV bm1422agmv(BM1422AGMV_DEVICE_ADDRESS_0F);
@@ -41,11 +45,23 @@ MK71251 mk71251;
 bool KX122_found = false;
 bool KX126_found = false;
 
+byte seq=0;
+
 void setup(){
     byte rc;
 
     Serial.begin(115200);
     while(!Serial);
+
+    LowPower.begin();
+    bootcause_e bc = LowPower.bootCause();
+    
+    seq = (byte)RTC.getTime();
+    Serial.print("!---------- Wake up (sec=");
+    Serial.print((int)seq);
+    Serial.print(", bc=");
+    Serial.print((int)bc);
+    Serial.println(")----------!");
 
     Wire.begin();
 
@@ -76,8 +92,6 @@ void setup(){
     if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
 }
-
-byte seq=0;
 
 int d_append(byte *array,int i, byte d){
     array[i]=d;
@@ -189,7 +203,7 @@ void loop(){
     unsigned char data[32];
     int len = sensors_data(data, temp, press, acc, mag, rc);
     mk71251.sendScanResponse(data,len);
-    if(!(seq%8)) sensors_log(temp, press, acc, mag, rc);
+    sensors_log(temp, press, acc, mag, rc);
     
     /* 受信 */
 //  char s[32];
@@ -198,9 +212,22 @@ void loop(){
 //      Serial.println(s);
 //  }
     
-    /* 次回の送信待ち（待機） */
-    delay(1000);
-    Serial.println("\n!---------- Wake up ----------!");
-    seq++;
-    /* 待機完了 */
+    /* スリープまたは待ち時間処理の実行 */
+    Serial.print("#---------- Done (seq=");
+    Serial.print((int)seq);
+    Serial.print(", mode=");
+    #ifdef MODE_LOWPOWER
+        Serial.print("deepSleep");
+    #else
+        Serial.print("delay");
+    #endif
+    Serial.println(")----------#");
+    delay(1);
+    #ifdef MODE_LOWPOWER
+        LowPower.deepSleep(1);
+//      LowPower.coldSleep(1);
+    #else
+        delay(1000);
+        seq++;
+    #endif
 }
