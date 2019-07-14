@@ -85,13 +85,13 @@ int d_append(byte *array,int i, byte d){
     return i+1;
 }
 
-int d_append_uint16(byte *array,int i, uint16_t d){
+int d_append_int16(byte *array,int i, int16_t d){
     array[i] = (byte)(d & 0xFF); 
     array[i+1] = (byte)(d >> 8);
     return i+2;
 }
 
-int d_append_uint24(byte *array,int i, uint32_t d){
+int d_append_int24(byte *array,int i, int32_t d){
     array[i] = (byte)(d & 0xFF); 
     array[i+1] = (byte)((d >>8)&0xFF);
     array[i+2] = (byte)((d >>16)&0xFF);
@@ -138,38 +138,38 @@ int sensors_data(
     float temp, float press, float *acc, float *mag, byte *rc
 ){
     int len =0;
-    unsigned long val_ui;
+    long val_i;
     if(!rc[0]){
-        val_ui = (unsigned long)((temp + 45.) * 374.5);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
-    }else len = d_append_uint16(data,len,0);
+        val_i = (long)((temp + 45.) * 374.5);
+        len = d_append_int16(data,len,(int16_t)(val_i));
+    }else len = d_append_int16(data,len,0);
     if(!rc[2]){
-        val_ui = (unsigned long)(press * 2048);
-        len = d_append_uint24(data,len,(uint32_t)(val_ui));
-    }else len = d_append_uint24(data,len,0);
+        val_i = (long)(press * 2048);
+        len = d_append_int24(data,len,(int32_t)(val_i));
+    }else len = d_append_int24(data,len,0);
     
     len = d_append(data,len,seq);
     if(!rc[3]){
-        val_ui = (unsigned long)(acc[0] * 4096);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
-        val_ui = (unsigned long)(acc[1] * 4096);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
-        val_ui = (unsigned long)(acc[2] * 4096);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_i = (long)(acc[0] * 4096);
+        len = d_append_int16(data,len,(int16_t)(val_i));
+        val_i = (long)(acc[1] * 4096);
+        len = d_append_int16(data,len,(int16_t)(val_i));
+        val_i = (long)(acc[2] * 4096);
+        len = d_append_int16(data,len,(int16_t)(val_i));
     }else{
-        len = d_append_uint24(data,len,0);
-        len = d_append_uint24(data,len,0);
+        len = d_append_int24(data,len,0);
+        len = d_append_int24(data,len,0);
     }
     if(!rc[4]){
-        val_ui = (unsigned long)(mag[0] * 10);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
-        val_ui = (unsigned long)(mag[1] * 10);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
-        val_ui = (unsigned long)(mag[2] * 10);
-        len = d_append_uint16(data,len,(uint16_t)(val_ui));
+        val_i = (long)(mag[0] * 10);
+        len = d_append_int16(data,len,(int16_t)(val_i));
+        val_i = (long)(mag[1] * 10);
+        len = d_append_int16(data,len,(int16_t)(val_i));
+        val_i = (long)(mag[2] * 10);
+        len = d_append_int16(data,len,(int16_t)(val_i));
     }else{
-        len = d_append_uint24(data,len,0);
-        len = d_append_uint24(data,len,0);
+        len = d_append_int24(data,len,0);
+        len = d_append_int24(data,len,0);
     }
     return len;
 }
