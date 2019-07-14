@@ -32,7 +32,8 @@ https://github.com/bokunimowakaru/rohm_iot_for_spresense
 #include "MK71251.h"
 #include <string.h>
 
-// #define MODE_LOWPOWER
+// #define MODE_LOWPOWER    // 注意：有効にするとVSSPP接続が出来なくなります。
+                            //       (スリープ中はプログラムが停止しているため)
 #include <LowPower.h>
 #include <RTC.h>
 
