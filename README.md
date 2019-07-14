@@ -1,6 +1,6 @@
 # 【内容】  
 ローム製Bluetooth LE Add-onボードSPRESENSE-BLE-EVK-701と、センサAdd-onボード
-SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューションズ製 Spresenseへ
+SPRESENSE-SENSOR-EVK-701 を ソニー・セミコンダクタ・ソリューションズ製 Spresenseへ
 接続し、各センサ値をBLE送信するためのプログラムです。
 
 	ble_sensor:
@@ -20,10 +20,19 @@ SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューション
 	ble_sensorが送信する全センサ値データを受信するツールです。
 	Lapis独自のVSSPPプロファイルを使用します。
 
+# 【システム概要】  
+
+サンプルプログラムble_sensor（Arduino IDE用・ble_sensorフォルダ内）を書き込んだSpresenseに、
+ローム製Bluetooth LE拡張ボードとセンサ拡張ボードを接続します。
+ble_sensorが送信するビーコンをRaspberry Pi上で動作するサンプルプログラムble_logger_sens_gatt.pyで受信し、
+Lapis独自のVSSPPプロファイルでセンサ値を取得します。
+
+![](images/fig1_spresense.jpg)
+
 # 【送信データ】  
 センサから得られた、温度、気圧、加速度、地磁気などのデータは、疑似シリアル通信（VSSPP）で送信します。  
 ビーコンのScan Responseでも送信しますが、10バイト（データ6バイト）の容量に抑えており、温度と気圧しか送信できません。  
-  
+
 # 【ライセンス】
 本プログラムやレポジトリに下記からダウンロードしたソースリストが含まれます。  
 https://github.com/RohmSemiconductor/Arduino
