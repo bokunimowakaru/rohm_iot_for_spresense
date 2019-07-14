@@ -10,9 +10,15 @@ SPRESENSE-SENSOR-EVK-701 を ソニーセミコンダクタソリューション
 	
 	ble_logger.py:
 	Raspberry PiなどでBLEスキャンを行うツールです。
+	sudoを付与して実行してください。
 	
 	ble_logger_sens_gatt.py:
-	Raspberry Piなどでble_sensorからGATTでデータ取得を行うツールです。
+	ble_sensorが送信するビーコンに含まれる温度センサと気圧センサの
+	センサ値データを受信し、表示するツールです。
+	
+	ble_logger_sens_gatt.py:
+	ble_sensorが送信する全センサ値データを受信するツールです。
+	Lapis独自のVSSPPプロファイルを使用します。
 
 # 【送信データ】  
 センサから得られた、温度、気圧、加速度、地磁気などのデータは、疑似シリアル通信（VSSPP）で送信します。  
