@@ -33,7 +33,7 @@ class MK71251
 		MK71251(void);
 		byte payload[34];
 		int payload_n;
-		int init(void);
+		int init(boolean lowpower=false);
 		int status(const char *s);
 		int write(unsigned char *data,int n);
 		int read(char *s, int n);

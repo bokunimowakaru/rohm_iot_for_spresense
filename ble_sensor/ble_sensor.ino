@@ -87,8 +87,13 @@ void setup(){
     Serial.print("Pressure sensor BM1383AGLV initialization ");
     if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
-
-    rc = mk71251.init();
+    
+    #ifdef MODE_LOWPOWER
+        if( bc == 0 ) rc = mk71251.init();
+        else          rc = mk71251.init(true);
+    #else
+        rc = mk71251.init();
+    #endif
     Serial.print("BLE Module MK71251 initialization ");
     if(rc != 0){ Serial.println("FAILED"); Serial.flush();}
     else Serial.println("success");
@@ -225,7 +230,7 @@ void loop(){
     Serial.println(")----------#");
     delay(1);
     #ifdef MODE_LOWPOWER
-        LowPower.deepSleep(1);
+        LowPower.deepSleep(10);
 //      LowPower.coldSleep(1);
     #else
         delay(1000);

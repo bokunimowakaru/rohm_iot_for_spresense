@@ -45,20 +45,24 @@ int MK71251::status(const char *s){
 	return at_status;
 }
 
-int MK71251::init(void){
+int MK71251::init(boolean lp_mode){
 
 	// configure Output for GPIO3 (High: HCI mode, Low: AT command mode)
+	digitalWrite(PIN_D21, LOW);
 	pinMode(PIN_D21, OUTPUT);
 	digitalWrite(PIN_D21, LOW);
-
+	
 	// reset BLE chip
-	delay(500);
-	pinMode(PIN_D20, OUTPUT);
-	digitalWrite(PIN_D20, LOW);
-	delay(10);
 	digitalWrite(PIN_D20, HIGH);
-	delay(20);
-	at_status = 1;
+	pinMode(PIN_D20, OUTPUT);
+	digitalWrite(PIN_D20, HIGH);
+	if(!lp_mode){
+		delay(500);
+		digitalWrite(PIN_D20, LOW);
+		delay(10);
+		digitalWrite(PIN_D20, HIGH);
+		delay(20);
+	}
 
 	Serial2.begin(57600);
 
@@ -66,7 +70,14 @@ int MK71251::init(void){
 		status("ERROR CTS is High (Locked)\n");
 	}
 
-	while(!sendAt("AT&F")) delay(10000);
+	if(!lp_mode){
+		while(!sendAt("AT&F")) delay(10000);
+		at_status = 1;
+	}else{
+		Serial2.write("\r");
+		if(waitKey("NO CARRIER")) at_status = 1;
+		else status("ERROR no response\n");
+	}
 	
 	// define advertising data
 	// 020106 -> Flags: LE General Discoverable Mode, BR/EDR Not Supported
@@ -74,6 +85,12 @@ int MK71251::init(void){
 	// 09084c61706973446576 -> Complete Local Name: LapisDev
 	sendAt("ATS150=02010605030f180a1809084c61706973446576");
 	
+	if(lp_mode){
+		sendAt("ATS104=500");
+		sendAt("ATS105=100");
+		sendAt("ATS107=512");
+		sendAt("ATS112=1000");
+	}
 	// start advertising
 	start();
 	
@@ -325,13 +342,16 @@ int MK71251::sendScanResponse(unsigned char *data, int n){
 		printf("data length = %d, %d\n",n,i);
 	}
 	waitCTS();
-//	sendAt("ATS129=60");
+//	sendAt("ATS129=23");
 	status("send ATS152=09FF");
 	printf("%s",companyIdentifier);
 	Serial2.write("ATS152=09FF");	// 09 = AD Type
 									// FF = Manufacture Specific
 	Serial2.write(companyIdentifier);
 									// Company Identifier(2 Octet)
+	
+	n=6;	// 制約
+	
 	for(int i=0; i<n;i++){
 		writeByte((byte)data[i]);
 	}
