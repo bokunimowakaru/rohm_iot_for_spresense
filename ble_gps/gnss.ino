@@ -352,19 +352,21 @@ void gnssGet(byte *array)
 
     int32_t lat,lon;
     double q;
-    q = NavData.latitude / 90. * 8388607.;
+    q = NavData.latitude / 90. * 2147483647.;
     if(q >= 0.) lat = (int32_t)(q + .5);
     else lat = (int32_t)(q - .5);
-    array[0] = (byte)(lat & 0xFF);
-    array[1] = (byte)((lat >> 8) & 0xFF);
-    array[2] = (byte)(lat >> 16);
+    array[0] = (byte)((lat >> 8) & 0xFF);
+    array[1] = (byte)(lat >> 16);
+    array[2] = (byte)(lat >> 24);
+    array[7] = (byte)(lat & 0xFF);
     
-    q = NavData.longitude / 180. * 8388607.;
+    q = NavData.longitude / 180. * 2147483647.;
     if(q >= 0.) lon = (int32_t)(q + .5);
     else lon = (int32_t)(q - .5);
-    array[3] = (byte)(lon & 0xFF);
-    array[4] = (byte)((lon >> 8) & 0xFF);
-    array[5] = (byte)(lon >> 16);
+    array[3] = (byte)((lon >> 8) & 0xFF);
+    array[4] = (byte)(lon >> 16);
+    array[5] = (byte)(lon >> 24);
+    array[8] = (byte)(lon & 0xFF);
 
     /* Print position information. */
     print_pos(&NavData);

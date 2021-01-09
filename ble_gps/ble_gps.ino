@@ -68,13 +68,14 @@ void Serial_printHex24(byte *in){
 }
 
 void loop(){
-    byte gps[6];
+    byte gps[9];
         
     /* GPSからデータ取得 */
     gnssGet(gps);
+    gps[6] = seq;
     
     /* データ送信 */
-    mk71251.sendScanResponse(gps, 6);
+    mk71251.sendScanResponse(gps, 9);
     
     /* 送信データの表示 */
     int32_t q;
