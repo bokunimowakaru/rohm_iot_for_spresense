@@ -55,15 +55,17 @@ class MyDelegate(DefaultDelegate):
         # センサ値を辞書型変数sensorsへ代入
         sensors['ID'] = hex(payval(val,2,2))
         sensors['Latitude'] = payval(val,4,3,True) / 8388607 * 90
+        sensors['LatLast8'] = payval(val,11,1,True) / 2147483647 * 90
         sensors['Longitude'] = payval(val,7,3,True) / 8388607 * 180
+        sensors['LonLast8'] = payval(val,12,1,True) / 2147483647 * 180
         sensors['SEQ'] = payval(val,10)
         sensors['RSSI'] = dev.rssi
 
         # 画面へ表示
         print('    ID            =',sensors['ID'])
         print('    SEQ           =',sensors['SEQ'])
-        print('    GPS Latitude  =',round(sensors['Latitude'],2),'°')
-        print('    GPS Longitude =',round(sensors['Longitude'],3),'°')
+        print('    GPS Latitude  =',round(sensors['Latitude']+sensors['LatLast8'],8),'°')
+        print('    GPS Longitude =',round(sensors['Longitude']+sensors['LonLast8'],8),'°')
         print('    RSSI          =',sensors['RSSI'],'dB')
 
 if address[0] == 'x':
