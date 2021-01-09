@@ -68,16 +68,18 @@ while True:
                 sensors['ID'] = hex(payval(2,2))
                 sensors['Latitude'] = payval(4,3,True) / 8388607 * 90
                 sensors['Longitude'] = payval(7,3,True) / 8388607 * 180
-                sensors['SEQ'] = payval(10)
                 sensors['RSSI'] = dev.rssi
 
                 # 画面へ表示
                 print('    ID            =',sensors['ID'])
-                if sensors['ID'] == '0x179' and sensors['SEQ'] == 15:
-                    print('    No Sensors')
+                if sensors['ID'] == '0x179':
                     isRohmMedal = False
                     break
-                print('    SEQ           =',sensors['SEQ'])
                 print('    GPS Latitude  =',round(sensors['Latitude'],2),'°')
                 print('    GPS Longitude =',round(sensors['Longitude'],3),'°')
                 print('    RSSI          =',sensors['RSSI'],'dB')
+
+aaa
+
+
+'''

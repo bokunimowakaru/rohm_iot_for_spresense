@@ -106,6 +106,6 @@ void loop(){
     Serial.print(", mode=");
     Serial.print("delay");
     Serial.println(")----------#");
-    delay(5000);
+    delay(1000);
     seq++;
 }
