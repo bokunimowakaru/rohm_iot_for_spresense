@@ -2,7 +2,7 @@
 # coding: utf-8
 
 ################################################################################
-# BLE Logger for ble_sensor
+# BLE Logger for ble_gps
 #
 # Bluetooth LE拡張ボードを搭載した Spresenseが送信するビーコンを受信し、
 # Lapis独自のVSSPPプロファイルでセンサ値を取得するサンプル・プログラムです。
@@ -54,8 +54,8 @@ class MyDelegate(DefaultDelegate):
 
         # センサ値を辞書型変数sensorsへ代入
         sensors['ID'] = hex(payval(val,2,2))
-        sensors['Latitude'] = payval(4,3,True) / 8388607 * 90
-        sensors['Longitude'] = payval(7,3,True) / 8388607 * 180
+        sensors['Latitude'] = payval(val,4,3,True) / 8388607 * 90
+        sensors['Longitude'] = payval(val,7,3,True) / 8388607 * 180
         sensors['SEQ'] = payval(val,10)
         sensors['RSSI'] = dev.rssi
 
