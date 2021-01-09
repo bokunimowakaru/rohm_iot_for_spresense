@@ -78,8 +78,3 @@ while True:
                 print('    GPS Latitude  =',round(sensors['Latitude'],2),'°')
                 print('    GPS Longitude =',round(sensors['Longitude'],3),'°')
                 print('    RSSI          =',sensors['RSSI'],'dB')
-
-aaa
-
-
-'''
