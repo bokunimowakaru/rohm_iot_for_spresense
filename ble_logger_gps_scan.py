@@ -75,6 +75,6 @@ while True:
                 if sensors['ID'] == '0x179':
                     isRohmMedal = False
                     break
-                print('    GPS Latitude  =',round(sensors['Latitude'],2),'°')
-                print('    GPS Longitude =',round(sensors['Longitude'],3),'°')
+                print('    GPS Latitude  =',round(sensors['Latitude'],5),'°')
+                print('    GPS Longitude =',round(sensors['Longitude'],5),'°')
                 print('    RSSI          =',sensors['RSSI'],'dB')
