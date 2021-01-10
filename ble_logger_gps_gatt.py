@@ -105,3 +105,30 @@ p.writeCharacteristic(ch.handle, b'\x01')
 # Main
 print('Waiting...')
 p.waitForNotifications(20)
+
+'''
+（bluepyのダウンロードとインストール）
+pi@raspberrypi:~ $ sudo apt-get update
+pi@raspberrypi:~ $ sudo pip3 install bluepy
+
+（プログラムのダウンロード）
+pi@raspberrypi:~
+$ git clone http://github.com/bokunimowakaru/rohm_iot_for_spresense
+
+（プログラムの実行）
+pi@raspberrypi:~ $ cd rohm_iot_for_spresense
+pi@raspberrypi:~/rohm_iot_for_spresense 
+$ sudo ./ble_logger_gps_gatt.py
+Device xx:xx:xx:xx:xx:xx (random), RSSI=-83 dB, Connectable=True
+    8 Short Local Name = LapisDev
+uuid = 0179bbd1-5351-48b5-bf6d-2167639bc867 handle = 0x404
+Waiting...
+0100a35631825960414fa5
+    ID            = 0x1
+    SEQ           = 65
+    GPS Latitude  = 34.69108 °
+          (32bit) = 34.6910873 °
+    GPS Longitude = 135.4917 °
+          (32bit) = 135.49171108 °
+    RSSI          = -81 dB
+'''
