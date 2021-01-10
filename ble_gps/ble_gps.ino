@@ -1,5 +1,5 @@
 /*******************************************************************************
-BLE Sensor
+BLE GPS/GNSS Sensor
 for Rohm SPRESENSE-BLE-EVK-701 + Sony Spresense
 
 https://github.com/bokunimowakaru/rohm_iot_for_spresense
