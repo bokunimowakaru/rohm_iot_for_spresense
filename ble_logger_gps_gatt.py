@@ -126,9 +126,9 @@ Waiting...
 0100a35631825960414fa5
     ID            = 0x1
     SEQ           = 65
-    GPS Latitude  = 34.69108 °
-          (32bit) = 34.6910873 °
-    GPS Longitude = 135.4917 °
-          (32bit) = 135.49171108 °
+    GPS Latitude  = 34.xx108 °
+          (32bit) = 34.xx10873 °
+    GPS Longitude = 135.xx17 °
+          (32bit) = 135.xx171108 °
     RSSI          = -81 dB
 '''
