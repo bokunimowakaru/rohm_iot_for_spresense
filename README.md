@@ -65,5 +65,4 @@ https://github.com/RohmSemiconductor/Arduino
 再配布時は各フォルダ内のファイル「LISENSE」を添付ください。
 https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/ble_sensor/LICENSE
 https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/ble_gps/LICENSE
-https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/rohm/LICENSE
 https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/LICENSE
