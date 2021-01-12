@@ -34,6 +34,15 @@ SPRESENSE-SENSOR-EVK-701 を ソニー・セミコンダクタ・ソリューシ
 	ble_gpsが送信するGPSの緯度と経度(32ビット)を受信し、表示するツールです。
 	Lapis独自のVSSPPプロファイルを使用します。
 
+# 【ハードウェア】  
+
+以下の機器が必要です。  
+
+- ソニー Spresense メインボード  
+- ローム Bluetooth LE 拡張ボード SPRESENSE-BLE-EVK-70  
+- ローム センサ拡張ボード SPRESENSE-SENSOR-EVK-701 (ble_gpsでは不要)  
+- その他、開発用PC、USB Microケーブルなど
+
 # 【システム概要】  
 
 サンプルプログラムble_sensor（Arduino IDE用・ble_sensorフォルダ内）またはble_gpsを書き込んだSpresenseに、
@@ -49,8 +58,12 @@ Lapis独自のVSSPPプロファイルでセンサ値を取得し表示します�
 
 # 【ライセンス】
 本プログラムやレポジトリに下記からダウンロードしたソースリストが含まれます。  
+https://developer.sony.com/ja/develop/spresense
 https://github.com/RohmSemiconductor/Arduino
   
-元の権利は Rohm と KokiOkada に帰属し、改変部の権利は国野亘に帰属します。  
-配布時はファイル「LISENSE」を添付ください。
+参照元の製作物の権利は ソニーセミコンダクタソリューションズ株式会社（ Sony Semiconductor Solutions Corporation ）または、ローム株式会社（ ROHM Co., Ltd. ）、 KokiOkada に帰属し、改変部の権利は 国野 亘 に帰属します。  
+再配布時は各フォルダ内のファイル「LISENSE」を添付ください。
 https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/ble_sensor/LICENSE
+https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/ble_gps/LICENSE
+https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/rohm/LICENSE
+https://github.com/bokunimowakaru/rohm_iot_for_spresense/blob/master/LICENSE
