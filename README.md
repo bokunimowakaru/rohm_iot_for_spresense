@@ -1,4 +1,7 @@
-# 【内容】  
+# Sony Spresense + ROHM Bluetooth LE Add-on ボードで作る ワイヤレス・センサ
+Examples for Wireless Sensors with Sony Spresense + ROHM Bluetooth LE Add-on board
+
+## 【内容】  
 ローム製Bluetooth LE Add-onボードSPRESENSE-BLE-EVK-701と、センサAdd-onボード
 SPRESENSE-SENSOR-EVK-701 を ソニー・セミコンダクタ・ソリューションズ製 Spresenseへ
 接続し、各センサ値または、GPS/GNSSの位置情報をBLE送信するためのプログラムです。  
@@ -34,7 +37,7 @@ SPRESENSE-SENSOR-EVK-701 を ソニー・セミコンダクタ・ソリューシ
 	ble_gpsが送信するGPSの緯度と経度(32ビット)を受信し、表示するツールです。
 	Lapis独自のVSSPPプロファイルを使用します。
 
-# 【ハードウェア】  
+## 【ハードウェア】  
 
 以下の機器が必要です。  
 
@@ -43,7 +46,7 @@ SPRESENSE-SENSOR-EVK-701 を ソニー・セミコンダクタ・ソリューシ
 - ローム センサ拡張ボード SPRESENSE-SENSOR-EVK-701 (ble_gpsでは不要)  
 - その他、開発用PC、USB Microケーブルなど
 
-# 【システム概要】  
+## 【システム概要】  
 
 サンプルプログラムble_sensor（Arduino IDE用・ble_sensorフォルダ内）またはble_gpsを書き込んだSpresenseに、
 ローム製Bluetooth LE拡張ボードとセンサ拡張ボードを接続します（ble_gpsはセンサ拡張ボード不要）。  
@@ -52,11 +55,11 @@ Lapis独自のVSSPPプロファイルでセンサ値を取得し表示します�
 
 ![](images/fig1_spresense.jpg)
 
-# 【送信データ】  
+## 【送信データ】  
 センサから得られた、温度、気圧、加速度、地磁気などのデータは、疑似シリアル通信（VSSPP）で送信します。  
 ビーコンのScan Responseでも送信しますが、10バイト（データ6バイト）の容量に抑えており、温度と気圧しか送信できません。  
 
-# 【ライセンス】
+## 【ライセンス】
 本プログラムやレポジトリに下記からダウンロードしたソースリストが含まれます。  
 https://developer.sony.com/ja/develop/spresense
 https://github.com/RohmSemiconductor/Arduino
